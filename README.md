@@ -1,152 +1,559 @@
-# Custom Shell Project
+# Unix Shell (C, Linux, Systems Programming)
 
-## Overview
-Mini Project: Custom Shell Development in C
-   # • Developed a Unix-like shell using C, implementing essential features to mimic standard shell behavior. 
-   # • Dynamic Shell Prompt: Created a prompt displaying the current user, system name, and working directory, with support for relative paths. 
-   # • Command Parsing: Implemented support for executing multiple commands using ; and &, handling random spaces and tabs in user input. 
-   # • Directory Navigation: Designed the hop command for changing directories, supporting ~, ., .., and sequential arguments. 
-   # • File Listing: Developed the reveal command to list files and directories with optional flags for detailed views and hidden files. 
-   # • Command Logging: Implemented a log command to track and display the last 15 executed commands, with options to purge or execute logged commands. 
-   #  • System Command Execution: Enabled execution of system commands (e.g., vim, gedit) in both foreground and background modes. 
-   # • Process Information: Created the proclore command to retrieve and display information about running processes. 
-   # • File Searching: Developed the seek command to find files and directories, supporting flags for file type filtering and permissions checking. 
-   # • I/O Redirection: Implemented support for input/output redirection using >, >>, and <, with appropriate error handling. 
-   # • Pipes Support: Enabled command piping with error handling for invalid usage. 
-   # • Signal Handling: Incorporated signal handling to manage background processes and user interruptions (Ctrl+C, Ctrl+Z). 
-   # • Configuration File: Created a .myshrc file for user-defined aliases and functions to enhance shell usability. 
-   # • Error Handling: Ensured robust error handling for both user-defined and system commands, preventing shell crashes. 
-   # • Modular Code Structure: Followed best practices for modular programming, separating functionality into distinct C files with header files. 
-This project involves building a custom shell in C. The shell supports various functionalities, such as custom commands (`hop`, `reveal`, `log`, `proclore`, `seek`), handling background and foreground processes, executing system commands, and more. 
+A custom Unix-like shell developed in C that replicates core functionalities of standard Linux shells while providing several custom utilities for process management, file exploration, and system monitoring.
 
-## Features Implemented
+The project explores fundamental Operating Systems concepts such as process creation, signal handling, inter-process communication, terminal control, filesystem traversal, and command execution.
 
-1. **Basic Command Execution**
+---
 
-   - The shell can execute standard system commands.
-   - Supports background execution of commands using `&`.
+## Features
 
-2. **Custom Commands**
+### Shell Core
 
-   - **`log`**: Handles logging of commands.
-   - **`hop`**: Custom command functionality.
-   - **`reveal`**: Reveals the content of files or directories.
-   - **`proclore`**: Provides details about processes.
-   - **`seek`**: Searches for files or directories based on specified flags.
+- Execute standard Linux system commands.
+- Support for multiple commands in a single input using `;`.
+- Background execution using `&`.
+- Dynamic shell prompt displaying:
+  - Username
+  - System hostname
+  - Current working directory.
+- Relative path handling similar to conventional Unix shells.
 
-3. **Input Handling**
+---
 
-   - Handles multiple commands separated by `;`.
-   - Supports quoted strings in commands.
-   - Trims whitespace from commands and arguments.
+### Command Parsing
 
-4. **Job Control**
+- Robust tokenization and parsing logic.
+- Handles:
+  - Multiple spaces and tabs.
+  - Quoted strings.
+  - Multiple commands in a single line.
+- Supports combinations of:
+  - Background processes
+  - Pipes
+  - Redirection
 
-   - Handles background and foreground processes.
-   - Tracks job numbers for background processes.
+---
 
-# . in reveal if we command only reveal defalt extension is set to reveal -a.
+### Custom Commands
 
--a for displaying hidden files and -l for displaying all details of files. It works exactly like ls command in linux terminal.
-if there is any l in flag it will set to default as reveal -l
-reveal -laa=reveal -l
-reveal -alll =reveal -l
-reveal -aaa= reveal -a
-for reveal -a there should be only a in flag does not matter count
+#### hop
 
-# . For 'seek' command, files can be searched with or without extensions.
+Custom directory navigation command.
 
-## Part B
+Supports:
 
-# #myshrc File
+```bash
+hop .
+hop ..
+hop ~
+hop <directory>
+```
 
-The myshrc file is a customized shell configuration file that includes useful aliases and functions to streamline the workflow and improve efficiency. It supports aliases and functions, including mk_hop and hop_seek.
+Allows sequential navigation through multiple directories.
+
+---
+
+#### reveal
+
+Custom file listing utility similar to `ls`.
+
+Supports:
+
+```bash
+reveal
+reveal -a
+reveal -l
+reveal -la
+```
+
+Features:
+
+- Hidden file listing (`-a`)
+- Detailed file information (`-l`)
+- Multiple occurrences of flags handled gracefully
+
+Examples:
+
+```bash
+reveal
+reveal -aaa
+reveal -l
+reveal -la
+reveal -alll
+```
+
+Behavior:
+
+| Command | Equivalent |
+|----------|------------|
+| reveal | reveal -a |
+| reveal -aaa | reveal -a |
+| reveal -laa | reveal -l |
+| reveal -alll | reveal -l |
+
+---
+
+#### log
+
+Command history management utility.
+
+Features:
+
+- Stores last 15 commands.
+- Displays command history.
+- Clears history.
+- Re-executes previous commands.
+
+---
+
+#### proclore
+
+Displays information about a process.
+
+Usage:
+
+```bash
+proclore
+proclore <pid>
+```
+
+Information displayed:
+
+- Process status
+- Process group
+- Memory usage
+- Executable path
+
+Uses the Linux `/proc` filesystem.
+
+---
+
+#### seek
+
+Recursive file and directory search utility.
+
+Usage:
+
+```bash
+seek <flags> <search_term> <directory>
+```
+
+Features:
+
+- Search files
+- Search directories
+- Permission checks
+- Search with or without extensions
+
+Examples:
+
+```bash
+seek main .
+seek -f main .
+seek -d src .
+```
+
+---
+
+#### activities
+
+Displays all processes spawned by the shell.
+
+Information shown:
+
+- Command name
+- PID
+- Process state
+
+Output is maintained in lexicographic order.
+
+Example:
+
+```bash
+activities
+```
+
+Sample output:
+
+```text
+sleep : 12345 : Running
+vim   : 12350 : Stopped
+```
+
+---
+
+#### ping
+
+Sends signals to processes.
+
+Usage:
+
+```bash
+ping <pid> <signal_number>
+```
+
+Example:
+
+```bash
+ping 12345 9
+```
+
+Supported signal numbers:
+
+```text
+0 - 31
+```
+
+---
+
+#### fg
+
+Brings a background process to the foreground.
+
+Usage:
+
+```bash
+fg <pid>
+```
+
+---
+
+#### bg
+
+Resumes a stopped process in the background.
+
+Usage:
+
+```bash
+bg <pid>
+```
+
+---
+
+#### neonate
+
+Monitors newly created processes in the system.
+
+Usage:
+
+```bash
+neonate -n <time_interval>
+```
+
+Example:
+
+```bash
+neonate -n 3
+```
+
+Uses:
+
+- `/proc`
+- `readdir()`
+- `select()`
+
+to periodically display newly created process IDs.
+
+---
+
+#### iMan
+
+Fetches Linux man pages from the internet using sockets.
+
+Usage:
+
+```bash
+iMan <command>
+```
+
+Example:
+
+```bash
+iMan grep
+```
+
+Retrieves documentation from:
+
+http://man.he.net
+
+and prints the contents directly to the terminal.
+
+---
 
 ## I/O Redirection
 
-The shell supports I/O redirection using >, >>, and < operators. It can redirect output to a file, append to a file, and read input from a file.
+Supports standard Unix redirection operators.
 
-# #Pipes
+### Output Redirection
 
-The shell supports pipes, which allow passing information between commands. It can handle any number of pipes and runs commands sequentially from left to right.
+```bash
+command > output.txt
+```
 
+### Append Redirection
 
-# Redirection with Pipes
+```bash
+command >> output.txt
+```
 
-The shell supports I/O redirection along with pipes, allowing for complex command sequences.
+### Input Redirection
 
-# Activities
+```bash
+command < input.txt
+```
 
-The shell provides an activities command that lists all the processes currently running that were spawned by the shell in lexicographic order. The list includes the command name, pid, and state (running or stopped) of each process.
-1. if an unknown activities like sleeep & then it will print that not valid one along with it store it in activities..
-whose statues we  it can give running 
+### Combined Redirection
 
-## nenoate
+```bash
+sort < input.txt > output.txt
+```
 
-1. The system has a **'/proc'** directory that contains information about running processes.
-2. The readdir function can be used to iterate through the /proc directory.
-3. The opendir and closedir functions can be used to open and close the /proc directory.
-4. The qsort function can be used to sort an array of integers.
-5. The fork function can be used to create a new process.
-6. The select function can be used to wait for input on the standard input file descriptor.
-7. The tcgetattr and tcsetattr functions can be used to manipulate the terminal attributes.
-   Usage
+---
 
-\*\* To use Neonate, simply compile the code and run the resulting executable with the following command:
+## Pipes
 
-neonate -n <time_arg>
+Supports arbitrary-length pipelines.
 
-## signals
+Examples:
 
-# Signal Handler
+```bash
+cat file.txt | grep error
+```
 
-1. The signal handler catches the following signals and performs the following actions:
+```bash
+cat file.txt | grep error | sort
+```
 
-   1. SIGINT (Ctrl-C): Kills the foreground process and resets the foreground process ID to -1.
-   2. SIGTSTP (Ctrl-Z): Stops the foreground process, adds it to a list of background processes, and resets the
-   3. foreground process ID to -1.
-   4. SIGD (Ctrl-D): Logs out of the shell after killing all processes.
+```bash
+cat file.txt | grep error | sort | uniq
+```
 
-# Ping Command
+Pipelines are executed from left to right using process chaining and inter-process communication.
 
--> . The ping command sends a signal to a specified process. The command takes two arguments: the process ID and the signal number.
+---
 
-# Usage
+## Pipes with Redirection
 
-To use the ping command, simply type:
+Supports combinations of pipes and redirection.
 
-ping <pid> <signal_number>
+Examples:
 
-Replace <pid> with the process ID and <signal_number> with the signal number (0-31).
+```bash
+cat file.txt | grep error > output.txt
+```
 
-## iman
+```bash
+sort < input.txt | uniq > output.txt
+```
 
- ## Description
+```bash
+cat log.txt | grep warning | sort > warnings.txt
+```
 
-The iMan command fetches man pages from the internet using sockets and outputs them to the terminal (stdout). It uses the website http://man.he.net/ to retrieve the man pages.
-Usage
+---
 
-Replace <command_name> with the name of the man page you want to fetch.
+## Job Control
 
-# Directions for use
+Supports:
 
-1. hop
-   hop <path>
-2. reveal
-   reveal <flags> <path>
-3. proclore
-   proclore <pid>
-4. seek
-   seek <flags> <search> <target_directory>
-5. activities
-   activities
-6. ping
-   ping <pid> <signal_number>
-7. fg
-   fg <pid>
-8. bg
-   bg <pid>
-9. neonate
-   neonate -n [time_arg]
-10. iMan
-    iMan <command_name>
+- Foreground processes
+- Background processes
+- Process suspension
+- Process continuation
+
+Example:
+
+```bash
+sleep 60 &
+```
+
+Output:
+
+```text
+[1] 12345
+```
+
+---
+
+## Signal Handling
+
+The shell correctly handles common terminal signals.
+
+### Ctrl + C (SIGINT)
+
+- Terminates foreground process.
+- Shell remains active.
+
+### Ctrl + Z (SIGTSTP)
+
+- Stops foreground process.
+- Moves process to background job list.
+
+### Ctrl + D (EOF)
+
+- Gracefully exits the shell.
+- Terminates active child processes.
+
+---
+
+## myshrc Configuration
+
+Supports shell customization through a `.myshrc` file.
+
+### Aliases
+
+Example:
+
+```bash
+alias ll="reveal -la"
+```
+
+### Functions
+
+Example:
+
+```bash
+mk_hop()
+{
+    mkdir $1
+    hop $1
+}
+```
+
+Example:
+
+```bash
+hop_seek()
+{
+    hop $1
+    seek $2 .
+}
+```
+
+---
+
+## Operating Systems Concepts Used
+
+This project extensively uses:
+
+- Process creation using `fork()`
+- Program execution using `execvp()`
+- Process synchronization using `wait()` and `waitpid()`
+- Signal handling using `signal()` and `kill()`
+- Inter-process communication using `pipe()`
+- Filesystem traversal using `opendir()` and `readdir()`
+- Process introspection through `/proc`
+- Terminal management using `tcgetattr()` and `tcsetattr()`
+- Socket programming for online man-page retrieval
+
+---
+
+## Project Structure
+
+```text
+.
+├── src/
+│   ├── shell.c
+│   ├── parser.c
+│   ├── hop.c
+│   ├── reveal.c
+│   ├── seek.c
+│   ├── proclore.c
+│   ├── activities.c
+│   ├── neonate.c
+│   ├── ping.c
+│   ├── iman.c
+│   ├── redirection.c
+│   ├── pipes.c
+│   └── signals.c
+│
+├── include/
+│   └── *.h
+│
+├── myshrc
+│
+└── README.md
+```
+
+---
+
+## Building
+
+Compile using GCC:
+
+```bash
+gcc *.c -o mysh
+```
+
+Or using Make:
+
+```bash
+make
+```
+
+---
+
+## Running
+
+```bash
+./mysh
+```
+
+---
+
+## Example Session
+
+```bash
+user@system:~> reveal -la
+
+user@system:~> seek main .
+
+user@system:~> sleep 30 &
+
+[1] 12453
+
+user@system:~> activities
+
+sleep : 12453 : Running
+
+user@system:~> cat file.txt | grep error | sort > output.txt
+
+user@system:~> proclore 12453
+```
+
+---
+
+## Technical Highlights
+
+- Written entirely in C.
+- Modular architecture with separate source and header files.
+- Linux process management and job control.
+- Custom command implementation.
+- Arbitrary-length pipeline support.
+- Combined pipe and redirection support.
+- Online man-page retrieval using sockets.
+- Persistent command history management.
+- Extensive error handling for robust shell execution.
+
+---
+
+## Future Improvements
+
+- Tab completion
+- Environment variable expansion
+- Shell scripting support
+- Command auto-suggestions
+- Advanced job scheduler
+- Command timing and profiling
+- Plugin architecture for custom commands
+
+---
+
+## Author
+
+**Prakhar Gupta**
+
+B.Tech, Electronics and Communication Engineering
+
+Indian Institute of Information Technology Design and Manufacturing (IIITDM) Kancheepuram
